@@ -1,0 +1,34 @@
+# =============================================================
+# requirements.txt — dependências do projeto
+# Instale com: pip install -r requirements.txt
+# =============================================================
+
+# --- Interface web ---
+streamlit==1.32.0           # Framework do app web interativo
+
+# --- Manipulação de dados ---
+pandas==2.2.1               # Leitura e manipulação de DataFrames
+numpy==1.26.4               # Operações numéricas e arrays
+
+# --- Machine Learning (modelos tabulares) ---
+scikit-learn==1.4.1         # Logistic Regression, Random Forest, métricas
+xgboost==2.0.3              # Gradient Boosting — modelo adicional poderoso
+
+# --- Explicabilidade dos modelos ---
+shap==0.45.0                # SHAP values — explica as previsões do modelo
+
+# --- Deep Learning (CNN para imagens) ---
+tensorflow==2.16.1          # Framework de redes neurais (inclui Keras)
+
+# --- Processamento de imagens ---
+Pillow==10.2.0              # Leitura e manipulação de imagens (upload)
+opencv-python-headless==4.9.0.80  # Processamento de imagem para Grad-CAM
+                                   # headless = sem interface gráfica (Docker)
+
+# --- Visualizações ---
+matplotlib==3.8.3           # Gráficos base (usado no SHAP e Grad-CAM)
+seaborn==0.13.2             # Gráficos estatísticos mais bonitos (EDA)
+plotly==5.20.0              # Gráficos interativos no Streamlit
+
+# --- Persistência de modelos ---
+joblib==1.3.2               # Salvar e carregar modelos scikit-learn (.pkl)
