@@ -1,5 +1,5 @@
 # 🏥 FIAP Tech Challenge — Fase 1
-## Sistema Inteligente de Diagnóstico: Síndrome dos Ovários Policísticos (PCOS)
+## Sistema Inteligente de Apoio ao Diagnóstico: Câncer de Colo do Útero
 
 > Projeto desenvolvido para o Tech Challenge da Fase 1 da Pós-graduação em 
 > IA para Developers — FIAP PosTech.
@@ -8,19 +8,21 @@
 
 ## 📋 Sobre o Projeto
 
-Este sistema utiliza **Machine Learning** e **Visão Computacional** para 
-apoiar profissionais de saúde na identificação da Síndrome dos Ovários 
-Policísticos (PCOS), uma condição hormonal que afeta entre 8-13% das 
-mulheres em idade reprodutiva.
+O **câncer de colo do útero é o segundo tipo de câncer mais comum entre mulheres no mundo**.
+A detecção precoce, através do rastreamento com Papanicolau e colposcopia, é o principal
+fator para redução da mortalidade.
 
-O app oferece **dois caminhos de diagnóstico de suporte**:
+Este sistema utiliza **Machine Learning** e **Visão Computacional** para apoiar profissionais
+de saúde na identificação de risco e análise de imagens citológicas do colo do útero.
 
-1. **📊 Dados Clínicos** — o profissional preenche um formulário com exames 
-   laboratoriais e dados clínicos da paciente. O modelo ML analisa e retorna 
-   a probabilidade de PCOS com explicação SHAP.
+O app oferece **dois caminhos de análise**:
 
-2. **🩻 Imagem de Ultrassom** — o profissional faz upload da imagem do 
-   ultrassom ovariano. A CNN analisa e retorna a predição com mapa de calor 
+1. **📊 Fatores de Risco Clínicos** — o profissional preenche um formulário com o histórico
+   clínico da paciente (idade, parceiros, ISTs, contraceptivos, etc.). O modelo ML analisa
+   e retorna a probabilidade de risco com explicação SHAP.
+
+2. **🔬 Imagem Citológica** — o profissional faz upload de uma imagem de citologia cervical
+   (Papanicolau) ou colposcopia. A CNN analisa e retorna a predição com mapa de calor
    Grad-CAM mostrando onde o modelo focou.
 
 > ⚠️ **Aviso importante:** este sistema é um apoio ao diagnóstico clínico.  
@@ -35,7 +37,7 @@ fiap-tech-challenge-fase1/
 ├── app/
 │   ├── main.py                  # Entry point do Streamlit
 │   ├── tabs/
-│   │   ├── structured.py        # Tab: formulário clínico + ML
+│   │   ├── structured.py        # Tab: formulário de risco + ML
 │   │   └── imaging.py           # Tab: upload de imagem + CNN
 │   ├── models/
 │   │   ├── train_ml.py          # Treino dos modelos tabulares
@@ -47,8 +49,8 @@ fiap-tech-challenge-fase1/
 ├── notebooks/
 │   └── EDA_and_Training.ipynb   # Análise exploratória e treino completo
 ├── data/
-│   ├── raw/                     # Dataset original (não versionado)
-│   └── processed/               # Dataset pré-processado (não versionado)
+│   ├── raw/                     # Datasets originais (não versionados)
+│   └── processed/               # Dados pré-processados (não versionados)
 ├── docs/                        # Relatório técnico e documentação
 ├── Dockerfile
 ├── requirements.txt
@@ -57,15 +59,29 @@ fiap-tech-challenge-fase1/
 
 ---
 
-## 📦 Dataset
+## 📦 Datasets
 
-**PCOS (Polycystic Ovary Syndrome)** — Kaggle  
-🔗 https://www.kaggle.com/datasets/prasoonkottarathil/polycystic-ovary-syndrome-pcos
+### Dados Tabulares — Fatores de Risco
+**UCI Cervical Cancer Risk Factors**  
+🔗 https://archive.ics.uci.edu/dataset/383/cervical+cancer+risk+factors
 
-Após o download, coloque os arquivos em:
+Após o download, coloque o arquivo em:
 ```
-data/raw/PCOS_data.csv          # dados tabulares
-data/raw/images/                # imagens de ultrassom (se disponíveis)
+data/raw/risk_factors_cervical_cancer.csv
+```
+
+### Imagens — Citologia Cervical
+**SipakMed — Cervical Cancer Largest Dataset**  
+🔗 https://www.kaggle.com/datasets/prahladmehandiratta/cervical-cancer-largest-dataset-sipakmed
+
+Após o download e extração, organize as imagens em:
+```
+data/raw/sipakmed/
+├── im_Dyskeratotic/     # Células anômalas
+├── im_Koilocytotic/     # Células com efeito HPV
+├── im_Metaplastic/      # Células metaplásicas
+├── im_Parabasal/        # Células normais (camadas profundas)
+└── im_Superficial-Intermediate/  # Células normais (superficiais)
 ```
 
 ---
@@ -87,14 +103,15 @@ venv\Scripts\activate          # Windows
 # 3. Instale as dependências
 pip install -r requirements.txt
 
-# 4. Baixe o dataset (link acima) e coloque em data/raw/
+# 4. Baixe os datasets (links acima) e coloque em data/raw/
 
 # 5. Treine os modelos
 python app/models/train_ml.py
-python app/models/train_cnn.py
+python app/models/train_cnn.py  # ou no Google Colab
 
 # 6. Rode o app
-streamlit run app/main.py
+cd app
+streamlit run main.py
 # Acesse: http://localhost:8501
 ```
 
@@ -102,10 +119,10 @@ streamlit run app/main.py
 
 ```bash
 # 1. Build da imagem
-docker build -t pcos-ai .
+docker build -t cervical-cancer-ai .
 
 # 2. Rode o container
-docker run -p 8501:8501 pcos-ai
+docker run -p 8501:8501 cervical-cancer-ai
 
 # Acesse: http://localhost:8501
 ```
@@ -118,17 +135,19 @@ docker run -p 8501:8501 pcos-ai
 | Modelo | Justificativa |
 |--------|--------------|
 | Logistic Regression | Baseline interpretável, boa para relações lineares |
-| Random Forest | Robusto, lida bem com features correlacionadas |
-| XGBoost | Alta performance, gradient boosting |
+| Random Forest | Robusto, lida bem com features correlacionadas e valores ausentes |
+| XGBoost | Alta performance em dados tabulares com desbalanceamento |
 
 **Métricas avaliadas:** Accuracy, Recall, F1-Score, AUC-ROC  
+**Justificativa de métrica:** Recall é prioritário — falso negativo tem custo alto  
 **Explicabilidade:** SHAP values (feature importance local e global)
 
 ### Imagem (Tab 2)
 | Modelo | Justificativa |
 |--------|--------------|
-| MobileNetV2 (Transfer Learning) | Leve, rápido, boa performance com poucos dados |
+| MobileNetV2 (Transfer Learning) | Leve, rápido, boa performance com datasets médios |
 
+**Dataset de imagem:** SipakMed (células do colo do útero classificadas por especialistas)  
 **Explicabilidade:** Grad-CAM (mapa de calor sobre a imagem original)
 
 ---

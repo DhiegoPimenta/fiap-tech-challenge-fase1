@@ -1,60 +1,63 @@
-# =============================================================
-# app/main.py — Entry point da aplicação Streamlit
-# =============================================================
-# Este arquivo é o ponto de entrada do app.
-# Ele configura a página, define as duas abas principais
-# e chama os módulos responsáveis por cada funcionalidade.
-# =============================================================
+"""
+main.py — Entry point do aplicativo Streamlit
+
+Sistema de apoio ao diagnóstico de Câncer de Colo do Útero.
+Combina dois caminhos de análise:
+  1. Dados clínicos (formulário com fatores de risco) → modelos ML
+  2. Imagem de citologia/colposcopia → CNN com Grad-CAM
+
+Para executar: streamlit run app/main.py
+"""
 
 import streamlit as st
 
-# Importa as duas abas da aplicação
+# Importa as tabs que criamos separadamente
+# Cada tab é um módulo independente para facilitar manutenção
 from tabs.structured import render_structured_tab
 from tabs.imaging import render_imaging_tab
 
-# =============================================================
-# Configuração geral da página
-# =============================================================
+# ─────────────────────────────────────────────────────────────
+# Configuração da página — deve ser a PRIMEIRA chamada Streamlit
+# ─────────────────────────────────────────────────────────────
 st.set_page_config(
-    page_title="PCOS AI Diagnosis",        # Título na aba do browser
-    page_icon="🏥",                         # Ícone na aba do browser
+    page_title="Cervical Cancer AI",       # Título na aba do navegador
+    page_icon="🏥",                         # Ícone na aba do navegador
     layout="wide",                          # Layout em tela cheia
-    initial_sidebar_state="collapsed"       # Sidebar recolhida por padrão
+    initial_sidebar_state="collapsed"       # Sidebar fechada por padrão
 )
 
-# =============================================================
-# Cabeçalho principal
-# =============================================================
-st.title("🏥 Sistema de Apoio ao Diagnóstico — PCOS")
+# ─────────────────────────────────────────────────────────────
+# Cabeçalho principal do app
+# ─────────────────────────────────────────────────────────────
+st.title("🏥 Sistema de Apoio ao Diagnóstico — Câncer de Colo do Útero")
 st.markdown("""
-> **Síndrome dos Ovários Policísticos (PCOS)** — sistema de suporte clínico  
-> baseado em Machine Learning e Visão Computacional.
+**Detecção de risco de Câncer de Colo do Útero** — Ferramenta de apoio clínico 
+desenvolvida com Machine Learning e Visão Computacional.
 
-⚠️ *Este sistema é uma ferramenta de apoio. A decisão final sempre cabe ao profissional de saúde.*
+> ⚠️ **Este sistema é uma ferramenta de apoio e não substitui a avaliação médica.**  
+> O(a) médico(a) sempre deve ter a palavra final no diagnóstico.
 """)
 
-st.divider()
+st.divider()  # Linha separadora visual
 
-# =============================================================
-# Abas da aplicação
-# =============================================================
-# Criamos duas abas: uma para dados clínicos (formulário)
-# e outra para análise de imagem (upload de ultrassom)
+# ─────────────────────────────────────────────────────────────
+# Tabs do app — dois caminhos de diagnóstico
+# ─────────────────────────────────────────────────────────────
 tab1, tab2 = st.tabs([
-    "📊 Dados Clínicos — Formulário",
-    "🩻 Imagem — Upload de Ultrassom"
+    "📊 Fatores de Risco Clínicos",    # Formulário com fatores de risco
+    "🔬 Imagem de Citologia"            # Upload de imagem para CNN
 ])
 
-# --- Aba 1: Dados estruturados (formulário + ML) ---
 with tab1:
+    # Renderiza a tab de dados estruturados (formulário + ML + SHAP)
     render_structured_tab()
 
-# --- Aba 2: Imagem (upload + CNN) ---
 with tab2:
+    # Renderiza a tab de imagem (upload + CNN + Grad-CAM)
     render_imaging_tab()
 
-# =============================================================
+# ─────────────────────────────────────────────────────────────
 # Rodapé
-# =============================================================
+# ─────────────────────────────────────────────────────────────
 st.divider()
 st.caption("FIAP PosTech — IA para Developers | Tech Challenge Fase 1")

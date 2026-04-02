@@ -11,7 +11,7 @@ pandas==2.2.1               # Leitura e manipulação de DataFrames
 numpy==1.26.4               # Operações numéricas e arrays
 
 # --- Machine Learning (modelos tabulares) ---
-scikit-learn==1.4.1         # Logistic Regression, Random Forest, métricas
+scikit-learn==1.4.1.post1   # Logistic Regression, Random Forest, métricas
 xgboost==2.0.3              # Gradient Boosting — modelo adicional poderoso
 
 # --- Explicabilidade dos modelos ---
