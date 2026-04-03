@@ -1,38 +1,58 @@
-# Claude Code
-.claude/
-
-# Git internals
-.git/
-
+# ─────────────────────────────────────────────
 # Python
+# ─────────────────────────────────────────────
 __pycache__/
 *.py[cod]
 *.pyo
 *.pyd
 .Python
-*.egg
 *.egg-info/
 dist/
 build/
-.eggs/
-*.whl
 
-# Virtual environments
+# ─────────────────────────────────────────────
+# Ambiente virtual Python
+# ─────────────────────────────────────────────
 venv/
-.venv/
 env/
 .env/
+.venv/
 
-# Environment variables
-.env
-.env.*
+# ─────────────────────────────────────────────
+# Jupyter Notebooks
+# ─────────────────────────────────────────────
+.ipynb_checkpoints/
 
-# IDE
+# ─────────────────────────────────────────────
+# Dados (não versionar arquivos grandes)
+# ─────────────────────────────────────────────
+data/raw/*.csv
+data/raw/*.zip
+data/raw/*.xlsx
+data/processed/*.csv
+# Os modelos treinados também podem ser grandes
+# Se ultrapassar 100MB, usar Git LFS ou não versionar
+app/models/artifacts/*.h5
+app/models/artifacts/*.pkl
+
+# ─────────────────────────────────────────────
+# Sistema operacional
+# ─────────────────────────────────────────────
+.DS_Store           # Mac
+Thumbs.db           # Windows
+desktop.ini
+
+# ─────────────────────────────────────────────
+# IDEs e editores
+# ─────────────────────────────────────────────
 .vscode/
 .idea/
 *.swp
 *.swo
 
-# OS
-.DS_Store
-Thumbs.db
+# ─────────────────────────────────────────────
+# Variáveis de ambiente (nunca versionar!)
+# ─────────────────────────────────────────────
+.env
+.env.local
+.claude/
