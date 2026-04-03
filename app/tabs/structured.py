@@ -15,7 +15,8 @@ import streamlit as st
 import pandas as pd
 import numpy as np
 import os
-import joblib  # Para carregar modelos .pkl salvos
+import joblib
+import matplotlib.pyplot as plt
 
 # Caminho onde os modelos treinados ficam salvos
 ARTIFACTS_PATH = os.path.join(os.path.dirname(__file__), "../models/artifacts")
@@ -252,12 +253,13 @@ def render_structured_tab():
             """)
 
             from utils.shap_viz import plot_shap_waterfall
-            fig = plot_shap_waterfall(model, input_df)
+            fig = plot_shap_waterfall(model, input_df, input_processed)
 
             if fig:
                 st.pyplot(fig)
+                plt.close()
             else:
-                st.info("Gráfico SHAP disponível após treinamento do modelo.")
+                st.info("Gráfico SHAP não disponível.")
 
             # Disclaimer médico — sempre presente após o resultado
             st.divider()
