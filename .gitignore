@@ -30,6 +30,8 @@ data/raw/*.csv
 data/raw/*.zip
 data/raw/*.xlsx
 data/processed/*.csv
+# Imagens do SipakMed (5000+ arquivos, varios GB)
+data/raw/sipakmed/
 # Os modelos treinados também podem ser grandes
 # Se ultrapassar 100MB, usar Git LFS ou não versionar
 app/models/artifacts/*.h5
