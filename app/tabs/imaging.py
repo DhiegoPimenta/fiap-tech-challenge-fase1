@@ -22,9 +22,10 @@ Classes do SipakMed:
 
 import streamlit as st
 import numpy as np
-from PIL import Image  # Para abrir e manipular imagens
+from PIL import Image
 import os
-import io  # Para converter imagens em bytes para download
+import io
+import cv2
 
 # Caminho onde os modelos treinados ficam salvos
 ARTIFACTS_PATH = os.path.join(os.path.dirname(__file__), "../models/artifacts")
@@ -43,26 +44,40 @@ CLASS_LABELS = {
 }
 
 
+def apply_clahe(img_uint8: np.ndarray) -> np.ndarray:
+    """
+    Aplica CLAHE em cada canal RGB — mesmo pré-processamento usado no treino.
+    CLAHE realça o contraste local, tornando estruturas celulares mais nítidas.
+    """
+    clahe = cv2.createCLAHE(clipLimit=2.0, tileGridSize=(8, 8))
+    channels = cv2.split(img_uint8)
+    eq_channels = [clahe.apply(ch) for ch in channels]
+    return cv2.merge(eq_channels)
+
+
 def preprocess_image(image: Image.Image) -> np.ndarray:
     """
     Pré-processa a imagem para o formato esperado pela CNN.
 
-    Passos:
-    1. Converte para RGB (garante 3 canais mesmo se vier em escala de cinza)
-    2. Redimensiona para 224x224 (padrão MobileNetV2)
-    3. Normaliza pixels para [0, 1]
-    4. Adiciona dimensão de batch (modelo espera array 4D)
+    Pipeline (idêntico ao treinamento):
+    1. Converte para RGB
+    2. Redimensiona para 224x224
+    3. Aplica CLAHE (realça contraste celular)
+    4. Normaliza para [0, 1]
+    5. Adiciona dimensão de batch
 
     Args:
         image: Imagem PIL carregada pelo Streamlit
 
     Returns:
-        Array numpy shape (1, 224, 224, 3) pronto para inferência
+        Array numpy shape (1, 224, 224, 3)
     """
-    img = image.convert("RGB")              # Garante 3 canais (R, G, B)
-    img = img.resize(IMG_SIZE)              # Redimensiona para 224x224
-    img_array = np.array(img) / 255.0      # Normaliza: pixels de 0-255 para 0-1
-    img_array = np.expand_dims(img_array, axis=0)  # Adiciona dim de batch: (224,224,3) → (1,224,224,3)
+    img = image.convert("RGB")
+    img = img.resize(IMG_SIZE)
+    img_array = np.array(img, dtype=np.uint8)   # uint8 para o CLAHE
+    img_array = apply_clahe(img_array)           # CLAHE — mesmo do treino
+    img_array = img_array.astype(np.float32) / 255.0
+    img_array = np.expand_dims(img_array, axis=0)
     return img_array
 
 
@@ -232,8 +247,9 @@ def render_imaging_tab():
                     # ─────────────────────────────────────────────
                     prediction = model.predict(img_array)[0][0]  # Valor entre 0 e 1
 
-                    # Define o resultado com base no threshold de 0.5
-                    is_anomalous = prediction >= 0.5
+                    # Threshold 0.35 (em vez de 0.5) — em diagnóstico médico
+                    # preferimos errar para o lado da detecção (minimizar falsos negativos)
+                    is_anomalous = prediction >= 0.35
                     confidence = prediction * 100 if is_anomalous else (1 - prediction) * 100
 
                     label, description = CLASS_LABELS[int(is_anomalous)]
