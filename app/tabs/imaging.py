@@ -66,9 +66,12 @@ def preprocess_image(image: Image.Image) -> np.ndarray:
     return img_array
 
 
+@st.cache_resource(show_spinner="Carregando modelo CNN...")
 def load_cnn_model():
     """
     Carrega o modelo CNN treinado (.h5) do disco.
+    @st.cache_resource garante que o modelo é carregado apenas UMA vez
+    e reutilizado em todas as interações — evita crash por excesso de RAM.
 
     Returns:
         Modelo Keras carregado ou None se não encontrado
@@ -78,7 +81,6 @@ def load_cnn_model():
     if not os.path.exists(model_path):
         return None  # Modelo ainda não treinado
 
-    # Import aqui para não carregar TensorFlow se não necessário
     import tensorflow as tf
     return tf.keras.models.load_model(model_path)
 
@@ -258,7 +260,6 @@ def render_imaging_tab():
 
                     # ─────────────────────────────────────────────
                     # Grad-CAM — Mapa de calor de ativação
-                    # Mostra ONDE o modelo focou para decidir
                     # ─────────────────────────────────────────────
                     with col2:
                         st.subheader("Mapa de Ativação (Grad-CAM)")
@@ -269,8 +270,9 @@ def render_imaging_tab():
 
                         if gradcam_fig:
                             st.pyplot(gradcam_fig)
+                            plt.close()
                         else:
-                            st.info("Grad-CAM disponível após treinamento completo.")
+                            st.info("Mapa de ativação não disponível.")
 
                     # Disclaimer médico
                     st.divider()
