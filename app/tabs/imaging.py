@@ -26,6 +26,7 @@ from PIL import Image
 import os
 import io
 import cv2
+import matplotlib.pyplot as plt
 
 # Caminho onde os modelos treinados ficam salvos
 ARTIFACTS_PATH = os.path.join(os.path.dirname(__file__), "../models/artifacts")
