@@ -138,27 +138,33 @@ def render_imaging_tab():
         São imagens reais do dataset **SipakMed** (células do colo do útero).
         """)
 
-        # Mapeamento de cada classe do SipakMed com descrição e rótulo binário
+        # Mapeamento de cada classe do SipakMed com descrição, rótulo binário
+        # e a imagem com maior confiança encontrada pelo modelo treinado
         example_classes = {
             "im_Dyskeratotic": {
                 "label": "🔴 Anômala — Displásica",
-                "desc": "Células displásicas, possível precursora de câncer"
+                "desc": "Células displásicas, possível precursora de câncer",
+                "best_file": "078.bmp",
             },
             "im_Koilocytotic": {
                 "label": "🔴 Anômala — Coilocitose (HPV)",
-                "desc": "Células com efeito citopatogênico do HPV"
+                "desc": "Células com efeito citopatogênico do HPV",
+                "best_file": "001.bmp",
             },
             "im_Metaplastic": {
                 "label": "🟡 Metaplásica",
-                "desc": "Células metaplásicas — geralmente benignas"
+                "desc": "Células metaplásicas — geralmente benignas",
+                "best_file": "159.bmp",
             },
             "im_Parabasal": {
                 "label": "🟢 Normal — Parabasal",
-                "desc": "Células parabasais saudáveis"
+                "desc": "Células parabasais saudáveis",
+                "best_file": "044.bmp",
             },
             "im_Superficial-Intermediate": {
                 "label": "🟢 Normal — Superficial/Intermediária",
-                "desc": "Células superficiais e intermediárias normais"
+                "desc": "Células superficiais e intermediárias normais",
+                "best_file": "051.bmp",
             },
         }
 
@@ -166,15 +172,17 @@ def render_imaging_tab():
         cols = st.columns(len(example_classes))
 
         for col, (class_folder, info) in zip(cols, example_classes.items()):
-            # Localiza o primeiro .bmp disponível nesta classe
             class_path = os.path.join(SIPAKMED_PATH, class_folder, class_folder)
-            bmp_files = [
-                f for f in os.listdir(class_path)
-                if f.endswith('.bmp') and not f.endswith('.dat')
-            ] if os.path.isdir(class_path) else []
 
-            if bmp_files:
-                img_path = os.path.join(class_path, sorted(bmp_files)[0])
+            # Usa a imagem de maior confiança; cai no primeiro .bmp se não existir
+            best = info["best_file"]
+            best_path = os.path.join(class_path, best)
+            if not os.path.exists(best_path) and os.path.isdir(class_path):
+                bmp_files = sorted(f for f in os.listdir(class_path) if f.endswith('.bmp'))
+                best_path = os.path.join(class_path, bmp_files[0]) if bmp_files else None
+
+            if best_path and os.path.exists(best_path):
+                img_path = best_path
 
                 # Carrega o .bmp e converte para PNG em memória para download
                 img = Image.open(img_path).convert("RGB")
