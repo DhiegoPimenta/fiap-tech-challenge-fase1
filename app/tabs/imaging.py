@@ -144,27 +144,27 @@ def render_imaging_tab():
             "im_Dyskeratotic": {
                 "label": "🔴 Anômala — Displásica",
                 "desc": "Células displásicas, possível precursora de câncer",
-                "best_file": "078.bmp",
+                "best_file": "180.bmp",
             },
             "im_Koilocytotic": {
                 "label": "🔴 Anômala — Coilocitose (HPV)",
                 "desc": "Células com efeito citopatogênico do HPV",
-                "best_file": "001.bmp",
+                "best_file": "169.bmp",
             },
             "im_Metaplastic": {
                 "label": "🟡 Metaplásica",
                 "desc": "Células metaplásicas — geralmente benignas",
-                "best_file": "159.bmp",
+                "best_file": "266.bmp",
             },
             "im_Parabasal": {
                 "label": "🟢 Normal — Parabasal",
                 "desc": "Células parabasais saudáveis",
-                "best_file": "044.bmp",
+                "best_file": "070.bmp",
             },
             "im_Superficial-Intermediate": {
                 "label": "🟢 Normal — Superficial/Intermediária",
                 "desc": "Células superficiais e intermediárias normais",
-                "best_file": "051.bmp",
+                "best_file": "014.bmp",
             },
         }
 
