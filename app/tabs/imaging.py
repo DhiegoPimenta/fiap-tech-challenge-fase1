@@ -31,8 +31,9 @@ import matplotlib.pyplot as plt
 # Caminho onde os modelos treinados ficam salvos
 ARTIFACTS_PATH = os.path.join(os.path.dirname(__file__), "../models/artifacts")
 
-# Caminho para o dataset SipakMed com imagens de exemplo
-SIPAKMED_PATH = os.path.join(os.path.dirname(__file__), "../../data/raw/sipakmed")
+# Imagens de exemplo pré-selecionadas (melhor confiança por classe)
+# Ficam em app/static/examples/ — sem depender do dataset local
+EXAMPLES_PATH = os.path.join(os.path.dirname(__file__), "../static/examples")
 
 # Tamanho padrão das imagens esperado pela MobileNetV2
 IMG_SIZE = (224, 224)
@@ -172,29 +173,17 @@ def render_imaging_tab():
         cols = st.columns(len(example_classes))
 
         for col, (class_folder, info) in zip(cols, example_classes.items()):
-            class_path = os.path.join(SIPAKMED_PATH, class_folder, class_folder)
+            img_path = os.path.join(EXAMPLES_PATH, f"{class_folder}.png")
 
-            # Usa a imagem de maior confiança; cai no primeiro .bmp se não existir
-            best = info["best_file"]
-            best_path = os.path.join(class_path, best)
-            if not os.path.exists(best_path) and os.path.isdir(class_path):
-                bmp_files = sorted(f for f in os.listdir(class_path) if f.endswith('.bmp'))
-                best_path = os.path.join(class_path, bmp_files[0]) if bmp_files else None
-
-            if best_path and os.path.exists(best_path):
-                img_path = best_path
-
-                # Carrega o .bmp e converte para PNG em memória para download
+            if os.path.exists(img_path):
                 img = Image.open(img_path).convert("RGB")
-                img_resized = img.resize((224, 224))  # Já no tamanho certo para o modelo
 
-                # Serializa a imagem PNG para bytes (necessário para st.download_button)
                 buf = io.BytesIO()
-                img_resized.save(buf, format="PNG")
+                img.save(buf, format="PNG")
                 img_bytes = buf.getvalue()
 
                 with col:
-                    st.image(img_resized, use_column_width=True)
+                    st.image(img, use_column_width=True)
                     st.caption(info["label"])
                     st.caption(info["desc"])
                     st.download_button(
@@ -203,7 +192,7 @@ def render_imaging_tab():
                         file_name=f"exemplo_{class_folder}.png",
                         mime="image/png",
                         use_container_width=True,
-                        key=f"download_{class_folder}"  # Chave única por botão
+                        key=f"download_{class_folder}"
                     )
 
     st.divider()
