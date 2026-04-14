@@ -1,7 +1,7 @@
 """
 train_ml.py — Treinamento dos modelos de Machine Learning (dados tabulares)
 
-Este script realiza TODO o pipeline de ML para o dataset PCOS tabular:
+Este script realiza TODO o pipeline de ML para o dataset risk_factors_cervical_cancer.csv tabular:
 1. Carrega o dataset
 2. Pré-processamento (limpeza, encoding, normalização)
 3. Análise exploratória básica
@@ -12,7 +12,7 @@ Este script realiza TODO o pipeline de ML para o dataset PCOS tabular:
 Para executar:
     python app/models/train_ml.py
 
-O dataset deve estar em: data/raw/PCOS_data.csv
+O dataset deve estar em: data/raw/risk_factors_cervical_cancer.csv
 """
 
 import os
@@ -46,8 +46,9 @@ import matplotlib.pyplot as plt
 import seaborn as sns
 
 # Caminhos dos arquivos
-DATA_PATH = os.path.join(os.path.dirname(__file__), "../../../data/raw/risk_factors_cervical_cancer.csv")
-ARTIFACTS_PATH = os.path.join(os.path.dirname(__file__), "artifacts")
+BASE_DIR = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+DATA_PATH = os.path.join(BASE_DIR, "data", "raw", "risk_factors_cervical_cancer.csv")
+ARTIFACTS_PATH = os.path.join(BASE_DIR, "artifacts")
 os.makedirs(ARTIFACTS_PATH, exist_ok=True)  # Cria pasta se não existir
 
 
@@ -83,11 +84,11 @@ def load_and_explore(filepath: str) -> pd.DataFrame:
     
     # Verifica balanceamento da variável alvo
     # Em datasets médicos, desbalanceamento é comum e importante identificar
-    target_col = "PCOS (Y/N)"
+    target_col = "Biopsy"
     if target_col in df.columns:
         print(f"\n🎯 Distribuição da variável alvo ({target_col}):")
         print(df[target_col].value_counts())
-        print(f"   Percentual positivo (PCOS=1): {df[target_col].mean()*100:.1f}%")
+        print(f"   Percentual positivo (Biopsy=1): {df[target_col].mean()*100:.1f}%")
     
     return df
 
@@ -142,7 +143,7 @@ def preprocess(df: pd.DataFrame):
     
     # ──────────────────────────────────────────────────────────
     # 2.3 Corrige colunas com tipos inconsistentes
-    # Algumas colunas do dataset PCOS vêm como object quando deveriam ser numéricas
+    # Algumas colunas do dataset Biopsy vêm como object quando deveriam ser numéricas
     # ──────────────────────────────────────────────────────────
     for col in df.columns:
         if df[col].dtype == object:
@@ -156,7 +157,7 @@ def preprocess(df: pd.DataFrame):
     # ──────────────────────────────────────────────────────────
     # 2.4 Separa features (X) da variável alvo (y)
     # ──────────────────────────────────────────────────────────
-    target_col = "PCOS (Y/N)"
+    target_col = "Biopsy"
     X = df.drop(columns=[target_col])
     y = df[target_col]
     
@@ -166,7 +167,7 @@ def preprocess(df: pd.DataFrame):
     
     # ──────────────────────────────────────────────────────────
     # 2.5 Divide em treino (70%), validação (15%) e teste (15%)
-    # Estratificado para manter proporção de PCOS em todos os conjuntos
+    # Estratificado para manter proporção de Biopsy em todos os conjuntos
     # ──────────────────────────────────────────────────────────
     # Primeiro separa 70% treino / 30% restante
     X_train, X_temp, y_train, y_temp = train_test_split(
@@ -230,10 +231,10 @@ def plot_correlation(df: pd.DataFrame):
     corr_matrix = numeric_df.corr()
     
     # Correlação das features com o target
-    target_col = "PCOS (Y/N)"
+    target_col = "Biopsy"
     if target_col in corr_matrix.columns:
         target_corr = corr_matrix[target_col].drop(target_col).sort_values(ascending=False)
-        print("\n🔗 Correlação com PCOS (Y/N):")
+        print("\n🔗 Correlação com Biopsy:")
         print(target_corr.head(10))  # Top 10 mais correlacionadas
     
     # Plota o heatmap completo
@@ -246,7 +247,7 @@ def plot_correlation(df: pd.DataFrame):
         square=True,
         linewidths=0.5
     )
-    plt.title("Matriz de Correlação — Dataset PCOS", fontsize=14, fontweight="bold")
+    plt.title("Matriz de Correlação — Dataset risk_factors_cervical_cancer", fontsize=14, fontweight="bold")
     plt.tight_layout()
     
     # Salva o gráfico
@@ -266,10 +267,10 @@ def train_and_evaluate(X_train, X_val, X_test, y_train, y_val, y_test, feature_n
     
     Por que essas métricas?
     - Accuracy: % de acertos geral — boa métrica se classes balanceadas
-    - Recall: % de PCOS positivos corretamente identificados
+    - Recall: % de Biopsy positivos corretamente identificados
               *** MAIS IMPORTANTE em diagnóstico médico ***
-              Um falso negativo (não detectar PCOS) é mais grave que 
-              um falso positivo (diagnosticar PCOS em quem não tem)
+              Um falso negativo (não detectar Biopsy) é mais grave que 
+              um falso positivo (diagnosticar Biopsy em quem não tem)
     - F1-Score: média harmônica entre precision e recall — equilíbrio geral
     """
     print("\n" + "=" * 60)
@@ -325,7 +326,7 @@ def train_and_evaluate(X_train, X_val, X_test, y_train, y_val, y_test, feature_n
         print(f"   Recall:    {rec:.4f} ({rec*100:.1f}%)")
         print(f"   F1-Score:  {f1:.4f}")
         print(f"\n📋 Relatório completo:")
-        print(classification_report(y_test, y_test_pred, target_names=["Sem PCOS", "Com PCOS"]))
+        print(classification_report(y_test, y_test_pred, target_names=["Sem Biopsy", "Com Biopsy"]))
         
         # Salva cada modelo treinado
         model_filename = name.lower().replace(" ", "_") + ".pkl"
@@ -363,8 +364,8 @@ if __name__ == "__main__":
     # Verifica se o dataset existe
     if not os.path.exists(DATA_PATH):
         print(f"❌ Dataset não encontrado em: {DATA_PATH}")
-        print("   Baixe o dataset do Kaggle e coloque em data/raw/PCOS_data.csv")
-        print("   https://www.kaggle.com/datasets/prasoonkottarathil/polycystic-ovary-syndrome-pcos")
+        print("   Baixe o dataset do Kaggle e coloque em data/raw/risk_factors_cervical_cancer.csv")
+        print("    https://archive.ics.uci.edu/dataset/383/cervical+cancer+risk+factors")
         sys.exit(1)
     
     # Executa o pipeline completo
