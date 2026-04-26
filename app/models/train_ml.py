@@ -70,7 +70,7 @@ def load_and_explore(filepath: str) -> pd.DataFrame:
     print("PASSO 1: CARREGAMENTO DOS DADOS")
     print("=" * 60)
     
-    df = pd.read_csv(filepath)
+    df = pd.read_csv(filepath, na_values="?")  # Dataset UCI usa "?" para valores ausentes
     
     print(f"\n✅ Dataset carregado com sucesso!")
     print(f"   Linhas: {df.shape[0]}")
@@ -120,11 +120,14 @@ def preprocess(df: pd.DataFrame):
     
     # ──────────────────────────────────────────────────────────
     # 2.1 Remove colunas não úteis
-    # Sl. No e Patient File No são identificadores, não features
+    # O dataset cervical cancer não possui colunas de identificação
     # ──────────────────────────────────────────────────────────
-    cols_to_drop = ["Sl. No", "Patient File No"]
-    df = df.drop(columns=[c for c in cols_to_drop if c in df.columns])
-    print(f"\n✅ Colunas removidas: {cols_to_drop}")
+    cols_to_drop = [c for c in df.columns if df[c].nunique() == df.shape[0]]
+    if cols_to_drop:
+        df = df.drop(columns=cols_to_drop)
+        print(f"\n✅ Colunas de identificação removidas: {cols_to_drop}")
+    else:
+        print("\n✅ Nenhuma coluna de identificação encontrada")
     
     # ──────────────────────────────────────────────────────────
     # 2.2 Verifica e trata valores ausentes
@@ -267,10 +270,10 @@ def train_and_evaluate(X_train, X_val, X_test, y_train, y_val, y_test, feature_n
     
     Por que essas métricas?
     - Accuracy: % de acertos geral — boa métrica se classes balanceadas
-    - Recall: % de Biopsy positivos corretamente identificados
+    - Recall: % de casos positivos de câncer cervical corretamente identificados
               *** MAIS IMPORTANTE em diagnóstico médico ***
-              Um falso negativo (não detectar Biopsy) é mais grave que 
-              um falso positivo (diagnosticar Biopsy em quem não tem)
+              Um falso negativo (não detectar câncer) é mais grave que
+              um falso positivo (biopsiar paciente saudável)
     - F1-Score: média harmônica entre precision e recall — equilíbrio geral
     """
     print("\n" + "=" * 60)
@@ -340,9 +343,10 @@ def train_and_evaluate(X_train, X_val, X_test, y_train, y_val, y_test, feature_n
             best_model = model
     
     # Salva também o melhor modelo com nome fixo (usado pelo Streamlit)
-    best_path = os.path.join(ARTIFACTS_PATH, "random_forest.pkl")
+    best_name = max(results, key=lambda n: results[n]["f1"])
+    best_path = os.path.join(ARTIFACTS_PATH, "best_model.pkl")
     joblib.dump(best_model, best_path)
-    print(f"\n🏆 Melhor modelo salvo como 'random_forest.pkl'")
+    print(f"\n🏆 Melhor modelo ({best_name}) salvo como 'best_model.pkl'")
     
     # Resumo comparativo
     print("\n" + "=" * 60)
