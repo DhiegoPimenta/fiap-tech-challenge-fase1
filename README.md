@@ -407,7 +407,9 @@ streamlit run app/main.py
 
 ## 🎥 Vídeo de Demonstração
 
-🔗 *(em breve)*
+🔗 https://youtu.be/8WfD-PMu6-Y
+
+[![Assista ao vídeo](https://img.youtube.com/vi/8WfD-PMu6-Y/maxresdefault.jpg)](https://youtu.be/8WfD-PMu6-Y)
 
 ---
 
